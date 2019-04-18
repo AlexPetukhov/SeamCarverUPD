@@ -1,9 +1,11 @@
 import edu.princeton.cs.algs4.Picture;
 import edu.princeton.cs.algs4.StdOut;
 
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.awt.*;
 import java.util.*;
+import javax.imageio.ImageIO;
 
 
 public class SeamCarver {
@@ -180,18 +182,81 @@ public class SeamCarver {
         }
         return result;
     }
-    public static void main(String[] args) {
-//        String path = "/Users/yiyuanliu/IdeaProjects/Seam Carving/seamCarving/10x10.png";
-//        Picture picture = new Picture(path);
+    public static String createDir(String path, String picName){
+        String dirName = picName;
+        String dirPath = path + "OUTPUT/" + dirName;
+        File theDir = new File(dirPath);
+        if (!theDir.exists()) {
+            System.out.println("creating directory: " + theDir.getName());
+            boolean result = false;
+            try{
+                theDir.mkdir();
+                result = true;
+            }
+            catch(SecurityException se){
+                //handle it
+            }
+            if(result) {
+                System.out.println("DIR \"" + path + "OUTPUT/" + dirName + "\" created");
+            }
+        }else{
+            System.out.println("DIR \"" + path + "OUTPUT/" + dirName + "\" exists");
+        }
+        return dirPath;
+    }
+    public static void ROFLmode(String path, Picture picture, SeamCarver sc){
+        // ROFL mode :
+        String picName = "A" + System.nanoTime() / 10000000;
+        String dirPath = createDir(path,picName);
 
-        long startTime = System.nanoTime();
-        Scanner in = new Scanner(System.in);
-        System.out.println("Enter picture name:");
-        String picName = in.nextLine();
-        String path = "/Users/AlexP/IdeaProjects/SeamCarverUPD/_pics/";
-//        String picName = "lizalow"; // picName input from console
-        String type = "png";
+        int times = Math.min(picture.height(),picture.width()) - 100;
+        System.out.println("TIMES: " +  times);
+        Picture ptmp;
+        for(int i = 0; i < times;i++){
+            if(i%50==0) System.out.println(i);
 
+            int[] seam = sc.findVerticalSeam();
+            sc.removeVerticalSeam(seam);
+
+            seam = sc.findHorizontalSeam();
+            sc.removeHorizontalSeam(seam);
+
+
+            if(i%5==0){
+                ptmp = new Picture(sc.width(),sc.height());
+                for(int k = 0; k < sc.width();k++){
+                    for(int j = 0; j < sc.height();j++){
+                        ptmp.setRGB(k,j,sc.getRGB(k,j));
+                    }
+                }
+                long tmp = System.nanoTime()/10000000;
+                ptmp.save(dirPath + "/" + picName + "_"+ tmp + ".png");
+            }
+        }
+    }
+    public static void normalMode(Picture picture, SeamCarver sc){
+        int times = Math.abs(picture.width() - picture.height());
+        System.out.println("TIMES: " +  times);
+        if(picture.width() > picture.height()){
+            // go vertical
+            for(int i = 0; i < times;i++){
+                if(i%50==0)System.out.println(i);
+                int[] verticalSeam = sc.findVerticalSeam();
+                sc.removeVerticalSeam(verticalSeam);
+            }
+        }else{
+            // go horizontal
+            for(int i = 0; i < times;i++){
+                if(i%50==0)System.out.println(i);
+                int[] verticalSeam = sc.findHorizontalSeam();
+                sc.removeHorizontalSeam(verticalSeam);
+            }
+        }
+
+    }
+
+
+        // array of pictures:
 //        for(int z = 1; z <= 13;z++){
 //            Picture picture = new Picture(path + z +  "low." + type);
 //            SeamCarver sc = new SeamCarver(picture);
@@ -226,83 +291,112 @@ public class SeamCarver {
 //
 //        }
 
-//
+
+    /**
+     * Converts a given Image into a BufferedImage
+     *
+     * @param img The Image to be converted
+     * @return The converted BufferedImage
+     */
+    public static BufferedImage toBufferedImage(Image img)
+    {
+        if (img instanceof BufferedImage)
+        {
+            return (BufferedImage) img;
+        }
+
+        // Create a buffered image with transparency
+        BufferedImage bimage = new BufferedImage(img.getWidth(null), img.getHeight(null), BufferedImage.TYPE_INT_ARGB);
+
+        // Draw the image on to the buffered image
+        Graphics2D bGr = bimage.createGraphics();
+        bGr.drawImage(img, 0, 0, null);
+        bGr.dispose();
+
+        // Return the buffered image
+        return bimage;
+    }
+
+    public static void main(String[] args) {
+//        String path = "/Users/yiyuanliu/IdeaProjects/Seam Carving/seamCarving/10x10.png";
+//        Picture picture = new Picture(path);
+        Picture picture;
+        long time;
+        String saveFile;
+
+        long startTime = System.nanoTime();
+
+//        Scanner in = new Scanner(System.in);
+
+//        System.out.println("Enter picture name:");
+//        String picName = in.nextLine();
+        String path = "/Users/AlexP/IdeaProjects/SeamCarverUPD/_pics/";
+        String picName = "pic"; // picName input from console
+//        String type = "png";
+
 
 
         // CREATING DIR
-        String dirName = picName;
-        String dirPath = path + "OUTPUT/" + dirName;
-        File theDir = new File(dirPath);
-        if (!theDir.exists()) {
-            System.out.println("creating directory: " + theDir.getName());
-            boolean result = false;
-            try{
-                theDir.mkdir();
-                result = true;
-            }
-            catch(SecurityException se){
-                //handle it
-            }
-            if(result) {
-                System.out.println("DIR \"" + path + "OUTPUT/" + dirName + "\" created");
-            }
-        }else{
-            System.out.println("DIR \"" + path + "OUTPUT/" + dirName + "\" exists");
+//        createDir(path,picName);
+
+
+
+//        picture = new Picture(path + picName + "." + type);
+        picture = new Picture("https://thispersondoesnotexist.com/image");
+        System.out.println(picture.width() + "x" + picture.height());
+        time = System.nanoTime()/10000000;
+        saveFile = path + picName + "_" + time + ".png";
+        picture.save(saveFile);
+
+
+        BufferedImage image = null;
+        // READ IMAGE
+        try {
+            File input_file = new File(saveFile); //image file path
+            image = new BufferedImage(picture.width(), picture.height(), BufferedImage.TYPE_INT_ARGB);
+
+            image = ImageIO.read(input_file);
+
+            System.out.println("Reading complete.");
+        } catch(IOException e) {
+            System.out.println("Error: "+e);
+        }
+
+        float newWidth = 500;
+        float newHeight = picture.height() * newWidth / picture.width();
+        Image newImage = image.getScaledInstance((int)newWidth, (int)newHeight, Image.SCALE_FAST);
+        image = toBufferedImage(newImage);
+
+        // WRITE IMAGE
+        try {
+            // Output file path
+            File output_file = new File(saveFile);
+
+            // Writing to file taking type and path as
+            ImageIO.write(image, "png", output_file);
+
+            System.out.println("Writing complete.");
+        } catch(IOException e) {
+            System.out.println("Error: "+e);
         }
 
 
-        Picture picture = new Picture(path + picName + "." + type);
+        picture = new Picture(saveFile);
         System.out.println(picture.width() + "x" + picture.height());
+
         SeamCarver sc = new SeamCarver(picture);
 
-        int times = Math.abs(picture.width() - picture.height());
+
+        // nwidth = 500;
+        // times =
+        // nheight/
 
 
         // normal mode :
-//        System.out.println("TIMES: " +  times);
-//        if(picture.width() > picture.height()){
-//            // go vertical
-//            for(int i = 0; i < times;i++){
-//                if(i%50==0)System.out.println(i);
-//                int[] verticalSeam = sc.findVerticalSeam();
-//                sc.removeVerticalSeam(verticalSeam);
-//            }
-//        }else{
-//            // go horizontal
-//            for(int i = 0; i < times;i++){
-//                if(i%50==0)System.out.println(i);
-//                int[] verticalSeam = sc.findHorizontalSeam();
-//                sc.removeHorizontalSeam(verticalSeam);
-//            }
-//        }
+//        normalMode(picture,sc);
 
-
-
-        // ROFL mode :
-        times = Math.min(picture.height(),picture.width()) - 75;
-        System.out.println("TIMES: " +  times);
-        Picture ptmp;
-        for(int i = 0; i < times;i++){
-            if(i%50==0) System.out.println(i);
-
-            int[] seam = sc.findVerticalSeam();
-            sc.removeVerticalSeam(seam);
-
-            seam = sc.findHorizontalSeam();
-            sc.removeHorizontalSeam(seam);
-
-
-            if(i%5==0){
-                ptmp = new Picture(sc.width(),sc.height());
-                for(int k = 0; k < sc.width();k++){
-                    for(int j = 0; j < sc.height();j++){
-                        ptmp.setRGB(k,j,sc.getRGB(k,j));
-                    }
-                }
-                long tmp = System.nanoTime()/10000000;
-                ptmp.save(dirPath + "/" + picName + tmp + ".png");
-            }
-        }
+        // ROFL MODE :
+        ROFLmode(path, picture, sc);
 
 
         long endTime   = System.nanoTime();
@@ -319,8 +413,8 @@ public class SeamCarver {
             }
         }
 
-        long tmp = System.nanoTime()/10000000;
-        String saveFile = path + picName + tmp + ".png";
+        time = System.nanoTime()/10000000;
+        saveFile = path + picName + "_" + time + ".png";
 
         sc.picture().save(saveFile);
 
