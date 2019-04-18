@@ -204,9 +204,11 @@ public class SeamCarver {
         }
         return dirPath;
     }
-    public static void ROFLmode(String path, Picture picture, SeamCarver sc){
+    public static void ROFLmode(String path, Picture picture, SeamCarver sc, String ... pName){
         // ROFL mode :
-        String picName = "A" + System.nanoTime() / 10000000;
+        String picName;
+        if(pName.length == 0) picName = "A" + System.nanoTime() / 10000000;
+        else picName = pName[0] + "_" + System.nanoTime() / 1000000000;
         String dirPath = createDir(path,picName);
 
         int times = Math.min(picture.height(),picture.width()) - 100;
@@ -234,7 +236,7 @@ public class SeamCarver {
             }
         }
     }
-    public static void normalMode(Picture picture, SeamCarver sc){
+    public static void normalMode(String path, Picture picture, SeamCarver sc, String picName){ // not finished!!
         int times = Math.abs(picture.width() - picture.height());
         System.out.println("TIMES: " +  times);
         if(picture.width() > picture.height()){
@@ -253,6 +255,23 @@ public class SeamCarver {
             }
         }
 
+
+
+
+        // saving picture :
+        System.out.println(sc.colors.length + "x" + sc.colors[0].length);
+
+        Picture p = new Picture(sc.width(),sc.height());
+        for(int i = 0; i < sc.width();i++){
+            for(int j = 0; j < sc.height();j++){
+                p.setRGB(i,j,sc.getRGB(i,j));
+            }
+        }
+
+        long time = System.nanoTime()/10000000;
+        String saveFile = path + picName + "_" + time + ".png";
+        System.out.println("Saved picture: " + saveFile);
+        sc.picture().save(saveFile);
     }
 
 
@@ -317,35 +336,10 @@ public class SeamCarver {
         return bimage;
     }
 
-    public static void main(String[] args) {
-//        String path = "/Users/yiyuanliu/IdeaProjects/Seam Carving/seamCarving/10x10.png";
-//        Picture picture = new Picture(path);
-        Picture picture;
-        long time;
-        String saveFile;
-
-        long startTime = System.nanoTime();
-
-//        Scanner in = new Scanner(System.in);
-
-//        System.out.println("Enter picture name:");
-//        String picName = in.nextLine();
-        String path = "/Users/AlexP/IdeaProjects/SeamCarverUPD/_pics/";
-        String picName = "pic"; // picName input from console
-//        String type = "png";
-
-
-
-        // CREATING DIR
-//        createDir(path,picName);
-
-
-
-//        picture = new Picture(path + picName + "." + type);
-        picture = new Picture("https://thispersondoesnotexist.com/image");
-        System.out.println(picture.width() + "x" + picture.height());
-        time = System.nanoTime()/10000000;
-        saveFile = path + picName + "_" + time + ".png";
+    public static Picture resizeImage(Picture picture, String path){
+        String picName = "pic";
+        long time = System.nanoTime()/10000000;
+        String saveFile = path + picName + "_" + time + ".png";
         picture.save(saveFile);
 
 
@@ -362,7 +356,7 @@ public class SeamCarver {
             System.out.println("Error: "+e);
         }
 
-        float newWidth = 500;
+        float newWidth = 600;
         float newHeight = picture.height() * newWidth / picture.width();
         Image newImage = image.getScaledInstance((int)newWidth, (int)newHeight, Image.SCALE_FAST);
         image = toBufferedImage(newImage);
@@ -380,23 +374,73 @@ public class SeamCarver {
             System.out.println("Error: "+e);
         }
 
-
         picture = new Picture(saveFile);
+        // deleting file
+        File file = new File(saveFile);
+        file.delete();
+        return picture;
+    }
+
+    public static Picture getPicture(int mode, String path, String picName, String type){
+        Picture picture;
+        if(mode > 0 ){
+        picture = new Picture(path + picName + "." + type);
+        }else{
+            picture = new Picture("https://thispersondoesnotexist.com/image");
+        }
+        return picture;
+    }
+    public static void main(String[] args) {
+        String path = "/Users/AlexP/IdeaProjects/SeamCarverUPD/_pics/";
+        long time;
+        String saveFile;
+        long startTime = System.nanoTime();
+        int mode = 0; // 1 - svou picture, 0 - random
+        String picName = "pic"; // picName input from console
+        String type = "png";
+        if(mode == 1){
+            Scanner in = new Scanner(System.in);
+            System.out.println("Enter picture name:");
+            picName = in.nextLine();
+            System.out.println("Enter picture type(png, jpg):");
+            type = in.nextLine();
+        }
+        Picture picture = getPicture(mode, path, picName, type);
+
+
+
+
+//        String type = "png";
+
+
+
+        // CREATING DIR : createDir(path,picName);
+
+
+
+//        picture =new Picture(path + picName + "." + type);
+
+        System.out.println(picture.width() + "x" + picture.height());
+        picture = resizeImage(picture, path);
         System.out.println(picture.width() + "x" + picture.height());
 
         SeamCarver sc = new SeamCarver(picture);
 
 
-        // nwidth = 500;
-        // times =
-        // nheight/
 
-
-        // normal mode :
-//        normalMode(picture,sc);
+        // normal mode : // not finished ( no creating directory)
+//        if(mode == 1){
+//            normalMode(path, picture,sc, picName);
+//        }else{
+//            normalMode(picture,sc);
+//        }
 
         // ROFL MODE :
-        ROFLmode(path, picture, sc);
+        if(mode == 1){
+            ROFLmode(path, picture, sc, picName);
+        }else {
+            ROFLmode(path, picture, sc);
+        }
 
 
         long endTime   = System.nanoTime();
@@ -404,19 +448,6 @@ public class SeamCarver {
         System.out.println();
         System.out.println("TIME: " +  totalTime + " seconds");
 
-        System.out.println(sc.colors.length + "x" + sc.colors[0].length);
-
-        Picture p = new Picture(sc.width(),sc.height());
-        for(int i = 0; i < sc.width();i++){
-            for(int j = 0; j < sc.height();j++){
-                p.setRGB(i,j,sc.getRGB(i,j));
-            }
-        }
-
-        time = System.nanoTime()/10000000;
-        saveFile = path + picName + "_" + time + ".png";
-
-        sc.picture().save(saveFile);
 
 
 
