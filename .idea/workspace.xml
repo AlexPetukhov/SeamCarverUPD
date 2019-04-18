@@ -2,12 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4dcef348-1332-4c10-9fde-61d90b554993" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/SeamCarverGRAPH" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/SeamCarverUPD.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/SeamCarverUPD.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/SeamCarverUPD/SeamCarver.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/SeamCarverUPD/SeamCarver.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/SeamCarver.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/SeamCarver.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/__GRAPH_SeamCarver.java" beforeDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -20,8 +17,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/SeamCarver.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="471">
-              <caret line="272" column="17" lean-forward="true" selection-start-line="272" selection-start-column="17" selection-end-line="272" selection-end-column="17" />
+            <state relative-caret-position="85">
+              <caret line="283" column="21" lean-forward="true" selection-start-line="283" selection-start-column="21" selection-end-line="283" selection-end-column="21" />
               <folding>
                 <element signature="imports" expanded="true" />
                 <element signature="e#903#904#0" expanded="true" />
@@ -53,6 +50,9 @@
     </option>
   </component>
   <component name="FindInProjectRecents">
+    <findStrings>
+      <find>catch</find>
+    </findStrings>
     <dirStrings>
       <dir>$PROJECT_DIR$</dir>
     </dirStrings>
@@ -63,8 +63,8 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/src/SeamCarver.java" />
         <option value="$PROJECT_DIR$/src/SeamCarverGRAPH" />
+        <option value="$PROJECT_DIR$/src/SeamCarver.java" />
       </list>
     </option>
   </component>
@@ -109,7 +109,7 @@
     <property name="Repository.Attach.Annotations" value="false" />
     <property name="Repository.Attach.JavaDocs" value="false" />
     <property name="Repository.Attach.Sources" value="false" />
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1555616471989" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1555618135411" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="project.structure.last.edited" value="Project" />
     <property name="project.structure.proportion" value="0.15" />
@@ -220,8 +220,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/SeamCarver.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="471">
-          <caret line="272" column="17" lean-forward="true" selection-start-line="272" selection-start-column="17" selection-end-line="272" selection-end-column="17" />
+        <state relative-caret-position="85">
+          <caret line="283" column="21" lean-forward="true" selection-start-line="283" selection-start-column="21" selection-end-line="283" selection-end-column="21" />
           <folding>
             <element signature="imports" expanded="true" />
             <element signature="e#903#904#0" expanded="true" />
