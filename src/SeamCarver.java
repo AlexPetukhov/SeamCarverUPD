@@ -231,7 +231,7 @@ public class SeamCarver {
 
         // CREATING DIR
         String dirName = picName;
-        String dirPath = path + dirName;
+        String dirPath = path + "OUTPUT/" + dirName;
         File theDir = new File(dirPath);
         if (!theDir.exists()) {
             System.out.println("creating directory: " + theDir.getName());
@@ -244,10 +244,10 @@ public class SeamCarver {
                 //handle it
             }
             if(result) {
-                System.out.println("DIR \"" + dirName + "\" created");
+                System.out.println("DIR \"" + path + "OUTPUT/" + dirName + "\" created");
             }
         }else{
-            System.out.println("DIR \"" + dirName + "\" exists");
+            System.out.println("DIR \"" + path + "OUTPUT/" + dirName + "\" exists");
         }
 
 
@@ -308,7 +308,7 @@ public class SeamCarver {
         long endTime   = System.nanoTime();
         long totalTime = (endTime - startTime)/1000000000;
         System.out.println();
-        System.out.println("TIME: " +  totalTime + "seconds");
+        System.out.println("TIME: " +  totalTime + " seconds");
 
         System.out.println(sc.colors.length + "x" + sc.colors[0].length);
 
