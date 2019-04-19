@@ -406,7 +406,7 @@ public class SeamCarver {
             picType = in.nextLine();
         }
         Picture picture = getPicture(mode, path, picName, picType);
-        picture.save(path + picName + "." + picType);
+        if(mode == 0)picture.save(path + picName + "." + picType);
 
 
         // CREATING DIR : createDir(path,picName);
