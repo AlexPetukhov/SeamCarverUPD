@@ -1,23 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="4dcef348-1332-4c10-9fde-61d90b554993" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/_pics/emillow8998785.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_pics/lizalow_9293049.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_pics/pic_9295080.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_pics/pic_9298743.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_pics/pic_9300064.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_pics/pic_9302356.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_pics/pic_9303636.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_pics/pic_9312980.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_pics/pic_9314229.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_pics/pic_9315829.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_pics/pic_9317096.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_pics/pic_9321673.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_pics/pic_9322896.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/SeamCarverUPD/SeamCarver.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/SeamCarverUPD/SeamCarver.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/SeamCarver.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/SeamCarver.java" afterDir="false" />
-    </list>
+    <list default="true" id="4dcef348-1332-4c10-9fde-61d90b554993" name="Default Changelist" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -29,8 +13,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/SeamCarver.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="348">
-              <caret line="364" column="13" lean-forward="true" selection-start-line="364" selection-start-column="13" selection-end-line="364" selection-end-column="13" />
+            <state relative-caret-position="287">
+              <caret line="370" lean-forward="true" selection-start-line="370" selection-end-line="370" />
               <folding>
                 <element signature="imports" expanded="true" />
                 <element signature="e#903#904#0" expanded="true" />
@@ -136,7 +120,7 @@
     <property name="Repository.Attach.Annotations" value="false" />
     <property name="Repository.Attach.JavaDocs" value="false" />
     <property name="Repository.Attach.Sources" value="false" />
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1555624949813" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1555625180567" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="project.structure.last.edited" value="Project" />
     <property name="project.structure.proportion" value="0.15" />
@@ -183,7 +167,6 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1440" height="900" extended-state="0" />
-    <editor active="true" />
     <layout>
       <window_info id="Image Layers" />
       <window_info id="Designer" />
@@ -198,7 +181,7 @@
       <window_info anchor="bottom" id="Messages" weight="0.32891566" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.25060242" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.25060242" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.29638556" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -268,8 +251,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/SeamCarver.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="348">
-          <caret line="364" column="13" lean-forward="true" selection-start-line="364" selection-start-column="13" selection-end-line="364" selection-end-column="13" />
+        <state relative-caret-position="287">
+          <caret line="370" lean-forward="true" selection-start-line="370" selection-end-line="370" />
           <folding>
             <element signature="imports" expanded="true" />
             <element signature="e#903#904#0" expanded="true" />
