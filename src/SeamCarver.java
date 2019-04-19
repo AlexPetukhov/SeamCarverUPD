@@ -397,21 +397,16 @@ public class SeamCarver {
         long startTime = System.nanoTime();
         int mode = 0; // 1 - svou picture, 0 - random
         String picName = "pic"; // picName input from console
-        String type = "png";
+        String picType = "png";
         if(mode == 1){
             Scanner in = new Scanner(System.in);
             System.out.println("Enter picture name:");
             picName = in.nextLine();
             System.out.println("Enter picture type(png, jpg):");
-            type = in.nextLine();
+            picType = in.nextLine();
         }
-        Picture picture = getPicture(mode, path, picName, type);
-
-
-
-
-//        String type = "png";
-
+        Picture picture = getPicture(mode, path, picName, picType);
+        picture.save(path + picName + "." + picType);
 
 
         // CREATING DIR : createDir(path,picName);
