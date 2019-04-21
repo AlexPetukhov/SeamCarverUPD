@@ -8,9 +8,13 @@ import java.awt.*;
 import java.util.*;
 import javax.imageio.ImageIO;
 
+import static java.lang.Thread.sleep;
+
 
 public class SeamCarver {
-    private int[][] colors;
+    private static int[][] colors;
+    private static int[][] energyArr;
+    private static ThreadHolder TH;
 
     public SeamCarver(Picture picture) {
         if (picture == null) throw new NullPointerException();
@@ -20,6 +24,7 @@ public class SeamCarver {
                 colors[i][j] = picture.get(i, j).getRGB();
             }
         }
+        TH = new ThreadHolder();
     }
 
     public Picture picture() {
@@ -70,6 +75,24 @@ public class SeamCarver {
 
     public int[] findHorizontalSeam() {
         this.colors = transpose(this.colors);
+        int h = colors[0].length;
+        int w = colors.length;
+        energyArr = new int[h][w];
+//        Task task1 = new Task(0,colors[0].length);
+//        task1.start(colors,energyArr);
+//        while(task1.isJobDone==false){
+//            try{sleep(10);}
+//            catch(InterruptedException e){}
+//        }
+        TH.calculate(colors,energyArr);
+//        Task task = new Task();
+//        task.setLowerBound(0);
+//        task.setUpperBound(colors[0].length);
+//        task.start(colors,energyArr);
+//        while(task.isJobDone==false){
+//            try{sleep(10);}
+//            catch(InterruptedException e){}
+//        }
         int[] seam = findVerticalSeam();
         this.colors = transpose(this.colors);
         return seam;
@@ -93,8 +116,8 @@ public class SeamCarver {
                     if (j + k < 0 || j + k > this.width() - 1 || i + 1 < 0 || i + 1 > this.height() - 1) {
                         continue;
                     } else {
-                        if (distTo[index(j + k, i + 1)] > distTo[index(j, i)] + energy(j, i)) {
-                            distTo[index(j + k, i + 1)] = distTo[index(j, i)] + energy(j, i);
+                        if (distTo[index(j + k, i + 1)] > distTo[index(j, i)] + energyArr[i][j]) {
+                            distTo[index(j + k, i + 1)] = distTo[index(j, i)] + energyArr[i][j];
                             nodeTo[index(j + k, i + 1)] = index(j, i);
                         }
                     }
@@ -122,6 +145,121 @@ public class SeamCarver {
 
         return seam;
     }
+    void addVerticalSeam(int num){
+        num = 900;
+        int[][] updatedColor = new int [width()+num][height()];
+        int seam[][] = new int[num][height()];
+        int colleft[][] = new int [num][height()];
+        int colright[][] = new int [num][height()];
+        int r,g,b,rgbNewPixel;
+        int tmp1,tmp2;
+        for(int i =0; i < height(); i ++)
+            for(int j =0; j <width();j++)
+                updatedColor[j][i] = colors[j][i];
+        for(int k=0; k<num;k++) {
+            int h = colors[0].length;
+            int w = colors.length;
+            energyArr = new int[h][w];
+            TH.calculate(colors,energyArr);
+            seam[k] = findVerticalSeam();
+            for (int i = 0; i < height(); i++) {
+                int x = seam[k][i];
+
+                if (x == 0) {
+                    rgbNewPixel = (getRGB(x+1,i) + getRGB(x,i)) / 2;
+                    r = (red(updatedColor[x + 1][ i]) + red(updatedColor[x][ i])) / 2;
+                    r = r << 16;
+                    g = (green(updatedColor[x + 1][ i]) + green(updatedColor[x][ i])) / 2;
+                    g = g << 8;
+                    b = (blue(updatedColor[x + 1][ i]) + blue(updatedColor[x][ i])) / 2;
+                    colright[k][i] = r + g + b;
+                    colleft[k][i] = updatedColor[x][i];
+                } else if (x == width() - 1) {
+                    rgbNewPixel = (getRGB(x - 1, i) + getRGB(x, i)) / 2;
+                    r = (red(updatedColor[x - 1][ i]) + red(updatedColor[x][ i])) / 2;
+                    r = r << 16;
+                    g = (green(updatedColor[x - 1][ i]) + green(updatedColor[x][ i])) / 2;
+                    g = g << 8;
+                    b = (blue(updatedColor[x - 1][ i]) + blue(updatedColor[x][ i])) / 2;
+                    colleft[k][i] = r + g + b;
+                    colright[k][i] = updatedColor[x][i];
+                } else {
+                    r = (red(updatedColor[x - 1][ i]) + red(updatedColor[x][ i])) / 2;
+                    r = r << 16;
+                    g = (green(updatedColor[x - 1][ i]) + green(updatedColor[x][ i])) / 2;
+                    g = g << 8;
+                    b = (blue(updatedColor[x - 1][ i]) + blue(updatedColor[x][ i])) / 2;
+                    colleft[k][i] = r + g + b;
+                    rgbNewPixel = (getRGB(x + 1, i) + getRGB(x, i)) / 2;
+                    r = (red(updatedColor[x + 1][ i]) + red(updatedColor[x][ i])) / 2;
+                    r = r << 16;
+                    g = (green(updatedColor[x + 1][ i]) + green(updatedColor[x][ i])) / 2;
+                    g = g << 8;
+                    b = ((blue(updatedColor[x + 1][ i])) + blue(updatedColor[x][ i])) / 2;
+                    colright[k][i] = r + g + b;
+                }
+                colors[x][i] = rgbNewPixel;
+
+                if(x!=0){
+                    tmp2=updatedColor[x][i];
+                    updatedColor[x-1][i] = colleft[k][i];
+                    updatedColor[x][i] = colright[k][i];
+                    for(int j=x+1;j<width()+num-1;j++) {
+                        tmp1=updatedColor[j][i];
+                        updatedColor[j][i] = tmp2;
+                        tmp2=tmp1;
+                    }
+                    updatedColor[width()+num-1][i]=tmp2;
+                    }
+                    else{
+                    tmp2=updatedColor[x+1][i];
+                    updatedColor[x][i] = colleft[k][i];
+                    updatedColor[x+1][i] = colright[k][i];
+                    for(int j=x+2;j<width()+num-1;j++) {
+                        tmp1=updatedColor[j][i];
+                        updatedColor[j][i] = tmp2;
+                        tmp2=tmp1;
+                    }
+                updatedColor[width()+num-1][i]=tmp2;
+                }
+
+//                    if(x!=width()+num - 1)
+//                        tmp2=updatedColor[x+1][i];
+//                    else tmp2 =0;
+//                    updatedColor[x][i] = colleft[k][i];
+//                    updatedColor[x + 1][i] = colright[k][i];
+//
+//                    for(int j=x+2;j<width()+num-1;j++) {
+//                        tmp1=updatedColor[j][i];
+//                        updatedColor[j][i] = tmp2;
+//                        tmp2=tmp1;
+//                    }
+//                    updatedColor[width()+num-1][i]=tmp2;
+
+
+            }
+        }
+//        for(int k=0; k<num;k++) {
+//            for (int i = 0; i < height(); i++) {
+//
+//                int x = seam[k][i];
+//                if(x!=width()+num - 1)
+//                    tmp2=updatedColor[x+1][i];
+//                else tmp2 =0;
+//                updatedColor[x][i] = colleft[k][i];
+//                updatedColor[x + 1][i] = colright[k][i];
+//
+//                for(int j=x+2;j<width()+num-1;j++) {
+//                    tmp1=updatedColor[j][i];
+//                    updatedColor[j][i] = tmp2;
+//                    tmp2=tmp1;
+//                }
+//                updatedColor[width()+num-1][i]=tmp2;
+//            }
+//        }
+
+        colors = updatedColor;
+        }
 
     public void removeHorizontalSeam(int[] seam) {
         if (height() <= 1) throw new IllegalArgumentException();
@@ -206,7 +344,7 @@ public class SeamCarver {
         }
         return dirPath;
     }
-
+    public void increaseMode(String path, Picture picture, SeamCarver sc, String ... Pname){}
     public static void ROFLmode(String path, Picture picture, SeamCarver sc, String ... pName){
         // ROFL mode :
         String picName;
@@ -215,19 +353,33 @@ public class SeamCarver {
         String dirPath = createDir(path,picName);
 
         int times = Math.min(picture.height(),picture.width()) - 100;
+        times = 1;
         System.out.println("TIMES: " +  times);
         Picture ptmp;
         for (int i = 0; i < times; i++) {
-            if(i%50==0) System.out.println(i);
+            if(i%2==0) System.out.println(i);
+            int h = colors[0].length;
+            int w = colors.length;
+            energyArr = new int[h][w];
+            TH.calculate(colors,energyArr);
+//            Task task = new Task();
+//            task.setLowerBound(0);
+//            task.setUpperBound(colors[0].length);
+//            task.start(colors,energyArr);
+//            while(task.isJobDone==false){
+//                try{sleep(10);}
+//                catch(InterruptedException e){}
+//            }
+//            int[] seam = sc.findVerticalSeam();
+            sc.addVerticalSeam(150);
+           // sc.removeVerticalSeam(seam);
 
-            int[] seam = sc.findVerticalSeam();
-            sc.removeVerticalSeam(seam);
 
-            seam = sc.findHorizontalSeam();
-            sc.removeHorizontalSeam(seam);
+            //seam = sc.findHorizontalSeam();
+            //sc.removeHorizontalSeam(seam);
 
 
-            if(i%5==0){
+            if(i%10==0){
                 ptmp = new Picture(sc.width(),sc.height());
                 for (int k = 0; k < sc.width(); k++) {
                     for (int j = 0; j < sc.height(); j++) {
@@ -417,7 +569,7 @@ public class SeamCarver {
 //        picture =new Picture(path + picName + "." + type);
 
             System.out.println(picture.width() + "x" + picture.height());
-            picture = resizeImage(picture, path);
+            //picture = resizeImage(picture, path);
             System.out.println(picture.width() + "x" + picture.height());
 
             SeamCarver sc = new SeamCarver(picture);
