@@ -10,7 +10,7 @@ import javax.imageio.ImageIO;
 
 
 public class SeamCarver {
-    public int[][] colors;
+    private int[][] colors;
 
     public SeamCarver(Picture picture) {
         if (picture == null) throw new NullPointerException();
