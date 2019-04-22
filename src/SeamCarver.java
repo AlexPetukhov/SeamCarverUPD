@@ -87,6 +87,8 @@ public class SeamCarver {
             else
                 distTo[i] = Integer.MAX_VALUE;
         }
+        int index = 0;
+        int min = Integer.MAX_VALUE;
         for (int i = 0; i < height(); i++) {
             for (int j = 0; j < width(); j++) {
                 for (int k = -1; k <= 1; k++) {
@@ -99,18 +101,26 @@ public class SeamCarver {
                         }
                     }
                 }
+                if(i == height() - 1){
+                    // find min dist in the last row
+                    if(distTo[j + width() * (height() - 1)] < min){
+                        index = j + width() * (height() - 1);
+                        min = distTo[j + width() * (height() - 1)];
+                    }
+                }
             }
+
         }
 
-        // find min dist in the last row
-        int min = Integer.MAX_VALUE;
-        int index = -1;
-        for (int j = 0; j < width(); j++) {
-            if (distTo[j + width() * (height() - 1)] < min) {
-                index = j + width() * (height() - 1);
-                min = distTo[j + width() * (height() - 1)];
-            }
-        }
+//        // find min dist in the last row
+//        int min = Integer.MAX_VALUE;
+//        int index = -1;
+//        for (int j = 0; j < width(); j++) {
+//            if (distTo[j + width() * (height() - 1)] < min) {
+//                index = j + width() * (height() - 1);
+//                min = distTo[j + width() * (height() - 1)];
+//            }
+//        }
 
         // find seam one by one
         for (int j = 0; j < height(); j++) {
@@ -276,43 +286,6 @@ public class SeamCarver {
         sc.picture().save(saveFile);
     }
 
-
-    // array of pictures:
-//        for(int z = 1; z <= 13;z++){
-//            Picture picture = new Picture(path + z +  "low." + type);
-//            SeamCarver sc = new SeamCarver(picture);
-//            System.out.println(path + z +  "low." + type);
-//            int times = Math.min(picture.height(),picture.width()) - 75;
-//            System.out.println("TIMES: " +  times);
-//            Picture ptmp;
-//            for(int i = 0; i < times;i++){
-//                if(i%50==0) System.out.println(i);
-//                int[] seam = sc.findVerticalSeam();
-//                sc.removeVerticalSeam(seam);
-//
-//                seam = sc.findHorizontalSeam();
-//                sc.removeHorizontalSeam(seam);
-//
-//
-//                if(i%5==0){
-//                    ptmp = new Picture(sc.width(),sc.height());
-//                    for(int k = 0; k < sc.width();k++){
-//                        for(int j = 0; j < sc.height();j++){
-//                            ptmp.setRGB(k,j,sc.getRGB(k,j));
-//                        }
-//                    }
-//                    long tmp = System.nanoTime()/10000000;
-//                    ptmp.save(path + "ROFL/" + picName + tmp + ".png");
-//
-//                }
-//
-//
-//            }
-//
-//
-//        }
-
-
     /**
      * Converts a given Image into a BufferedImage
      *
@@ -336,7 +309,7 @@ public class SeamCarver {
         return bimage;
     }
 
-    public static Picture resizeImage(Picture picture, String path){
+    public static Picture resizeImage(Picture picture, String path, float ... wid){
         String picName = "pic";
         long time = System.nanoTime()/10000000;
         String saveFile = path + picName + "_" + time + ".png";
@@ -355,8 +328,9 @@ public class SeamCarver {
         } catch(IOException e) {
             System.out.println("Error: "+e);
         }
-
-        float newWidth = 600;
+        float newWidth;
+        if(wid.length == 0) newWidth = 600;
+        else newWidth = wid[0];
         float newHeight = picture.height() * newWidth / picture.width();
         Image newImage = image.getScaledInstance((int)newWidth, (int)newHeight, Image.SCALE_FAST);
         image = toBufferedImage(newImage);
@@ -396,7 +370,7 @@ public class SeamCarver {
         long time;
         String saveFile;
         long startTime = System.nanoTime();
-        int mode = 1; // 1 - svou picture, 0 - random
+        int mode = 0; // 1 - svou picture, 0 - random
         String picName = "pic"; // picName input from console
         String picType = "png";
         if(mode == 1){
@@ -419,6 +393,7 @@ public class SeamCarver {
             System.out.println(picture.width() + "x" + picture.height());
             picture = resizeImage(picture, path);
             System.out.println(picture.width() + "x" + picture.height());
+            System.out.println("Resize time : " + (System.nanoTime() - startTime) / 1000000000 + " seconds");
 
             SeamCarver sc = new SeamCarver(picture);
 
