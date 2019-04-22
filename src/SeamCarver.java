@@ -21,6 +21,71 @@ public class SeamCarver {
             }
         }
     }
+    private int getAvgRGB(int pix1, int pix2){
+        int red = (red(pix1)+(red(pix2)))/2;
+        red = red << 16;
+        int green = (green(pix1)+(green(pix2)))/2;
+        green = green << 8;
+        int blue = (blue(pix1)+blue(pix2))/2;
+        int finalPix = red + green + blue;
+        return finalPix;
+    }
+    void addVerticalSeam(int num){
+        int[][] updatedColor = new int [width()+num][height()];
+        int seam[];
+        int leftpix; //left pixel to be inserted
+        int rightpix; // right one
+        int rgbNewPixel;
+        int tmp1,tmp2;
+        for(int i =0; i < height(); i ++)
+            for(int j =0; j <width();j++)
+                updatedColor[j][i] = colors[j][i];
+        for(int k=0; k<num;k++) {
+            seam = findVerticalSeam();
+            for (int i = 0; i < height(); i++) {
+                int x = seam[i];
+
+                if (x == 0) { //find averages for left and right pixels
+                    rgbNewPixel = (getRGB(x + 1, i) + getRGB(x, i)) / 2;
+                    rightpix = getAvgRGB(updatedColor[x + 1][ i],updatedColor[x][ i]);
+                    leftpix = updatedColor[x][i];
+                } else if (x == width() - 1) {
+                    rgbNewPixel = (getRGB(x - 1, i) + getRGB(x, i)) / 2;
+                    leftpix = getAvgRGB(updatedColor[x - 1][ i],updatedColor[x][i]);
+                    rightpix = updatedColor[x][i];
+                } else {
+                    rgbNewPixel = (getRGB(x + 1, i) + getRGB(x, i)) / 2;
+                    leftpix = getAvgRGB(updatedColor[x - 1][ i],updatedColor[x][i]);
+                    rightpix = getAvgRGB(updatedColor[x + 1][ i],updatedColor[x][i]);
+                }
+                colors[x][i] = rgbNewPixel;
+
+                if(x!=0){ // insert pixels
+                    tmp2=updatedColor[x][i];
+                    updatedColor[x-1][i] = leftpix;
+                    updatedColor[x][i] = rightpix;
+                    for(int j=x+1;j<width()+num-1;j++) {
+                        tmp1=updatedColor[j][i];
+                        updatedColor[j][i] = tmp2;
+                        tmp2=tmp1;
+                    }
+                    updatedColor[width()+num-1][i]=tmp2;
+                }
+                else{
+                    tmp2=updatedColor[x+1][i];
+                    updatedColor[x][i] = leftpix;
+                    updatedColor[x+1][i] = rightpix;
+                    for(int j=x+2;j<width()+num-1;j++) { // shift remaining pixels
+                        tmp1=updatedColor[j][i];
+                        updatedColor[j][i] = tmp2;
+                        tmp2=tmp1;
+                    }
+                    updatedColor[width()+num-1][i]=tmp2;
+                }
+            }
+        }
+        colors = updatedColor;
+    }
 
     public Picture picture() {
         Picture picture = new Picture(colors.length, colors[0].length);
@@ -361,7 +426,9 @@ public class SeamCarver {
         long time;
         String saveFile;
         long startTime = System.nanoTime();
-        int mode = 0; // 1 - svou picture, 0 - random
+        int mode = 1; // 1 - svou picture, 0 - random
+        int crop = 0; //1 - crop, 0 extend
+        int resize = 1; // 1 - resize, 0 - keep origin size
         String picName = "pic"; // picName input from console
         String picType = "png";
         if(mode == 1){
@@ -382,9 +449,11 @@ public class SeamCarver {
 //        picture =new Picture(path + picName + "." + type);
 
             System.out.println(picture.width() + "x" + picture.height());
-            picture = resizeImage(picture, path);
-            System.out.println(picture.width() + "x" + picture.height());
-            System.out.println("Resize time : " + (System.nanoTime() - startTime) / 1000000000 + " seconds");
+            if(resize==1) {
+                picture = resizeImage(picture, path);
+                System.out.println(picture.width() + "x" + picture.height());
+                System.out.println("Resize time : " + (System.nanoTime() - startTime) / 1000000000 + " seconds");
+            }
 
             SeamCarver sc = new SeamCarver(picture);
 
@@ -395,19 +464,33 @@ public class SeamCarver {
 //        }else{
 //            normalMode(picture,sc);
 //        }
-
-            // ROFL MODE :
-            if (mode == 1) {
-                ROFLmode(path, picture, sc, picName);
+            if(crop==1) {
+                // ROFL MODE :
+                if (mode == 1) {
+                    ROFLmode(path, picture, sc, picName);
+                } else {
+                    ROFLmode(path, picture, sc);
+                }
             } else {
-                ROFLmode(path, picture, sc);
+                int num =  sc.width()/5;
+                sc.addVerticalSeam(num);
+                long tmp = System.nanoTime()/10000000;
+                String name = picName + tmp;
+                String dirPath = createDir(path,name);
+                Picture ptmp = new Picture(sc.width(),sc.height());
+                for (int k = 0; k < sc.width(); k++) {
+                    for (int j = 0; j < sc.height(); j++) {
+                        ptmp.setRGB(k,j,sc.getRGB(k,j));
+                    }
+                }
+                ptmp.save(dirPath + "/" + name + ".png");
+
             }
-
-
             long endTime = System.nanoTime();
             long totalTime = (endTime - startTime) / 1000000000;
             System.out.println();
             System.out.println("TIME: " + totalTime + " seconds");
+            System.out.println(picture.width() + "x" + picture.height());
         }
 
 
