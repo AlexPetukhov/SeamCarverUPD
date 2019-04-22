@@ -185,47 +185,26 @@ public class SeamCarver {
         return result;
     }
 
-    public static String createDir(String path, String picName,int ... mode){
+    public static String createDir(String path, String picName){
         String dirName = picName;
-        String dirPath;
-        if(mode.length > 0){
-            // need to create OUTPUT directory
-            dirPath = path + "OUTPUT";
-            File theDir = new File(dirPath);
-            if (!theDir.exists()) {
-                System.out.println("creating directory: " + theDir.getName());
-                boolean result = false;
-                try{
-                    theDir.mkdir();
-                    result = true;
-                } catch (SecurityException se) {
-                    //handle it
-                }
-                if(result) {
-                    System.out.println("DIR \"" + path + "OUTPUT/" + dirName + "\" created");
-                }
+        String dirPath = path + "OUTPUT/" + dirName;
+        File theDir = new File(dirPath);
+        if (!theDir.exists()) {
+            System.out.println("creating directory: " + theDir.getName());
+            boolean result = false;
+            try{
+                theDir.mkdir();
+                result = true;
+            } catch (SecurityException se) {
+                //handle it
+            }
+            if(result) {
+                System.out.println("DIR \"" + path + "OUTPUT/" + dirName + "\" created");
             }
         }else{
-            dirPath = path + "OUTPUT/" + dirName;
-            File theDir = new File(dirPath);
-            if (!theDir.exists()) {
-                System.out.println("creating directory: " + theDir.getName());
-                boolean result = false;
-                try{
-                    theDir.mkdir();
-                    result = true;
-                } catch (SecurityException se) {
-                    //handle it
-                }
-                if(result) {
-                    System.out.println("DIR \"" + path + "OUTPUT/" + dirName + "\" created");
-                }
-            }else{
-                System.out.println("DIR \"" + path + "OUTPUT/" + dirName + "\" exists");
-            }
+            System.out.println("DIR \"" + path + "OUTPUT/" + dirName + "\" exists");
         }
         return dirPath;
-
     }
 
     public static void ROFLmode(String path, Picture picture, SeamCarver sc, String ... pName){
@@ -417,7 +396,7 @@ public class SeamCarver {
         long time;
         String saveFile;
         long startTime = System.nanoTime();
-        int mode = 0; // 1 - svou picture, 0 - random
+        int mode = 1; // 1 - svou picture, 0 - random
         String picName = "pic"; // picName input from console
         String picType = "png";
         if(mode == 1){
@@ -427,8 +406,6 @@ public class SeamCarver {
             System.out.println("Enter picture type(png, jpg):");
             picType = in.nextLine();
         }
-        // creating directory OUTPUT
-        createDir(path,picName,1);
         for (int i = 0; i < 1; i++) {
             Picture picture = getPicture(mode, path, picName, picType);
             if (mode == 0) picture.save(path + picName + "." + picType);
