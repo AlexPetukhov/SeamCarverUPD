@@ -91,12 +91,13 @@ public class SeamCarver {
         int min = Integer.MAX_VALUE;
         for (int i = 0; i < height(); i++) {
             for (int j = 0; j < width(); j++) {
+                int energ = energy(j, i);
                 for (int k = -1; k <= 1; k++) {
                     if (j + k < 0 || j + k > this.width() - 1 || i + 1 < 0 || i + 1 > this.height() - 1) {
                         continue;
                     } else {
-                        if (distTo[index(j + k, i + 1)] > distTo[index(j, i)] + energy(j, i)) {
-                            distTo[index(j + k, i + 1)] = distTo[index(j, i)] + energy(j, i);
+                        if (distTo[index(j + k, i + 1)] > distTo[index(j, i)] + energ) {
+                            distTo[index(j + k, i + 1)] = distTo[index(j, i)] + energ;
                             nodeTo[index(j + k, i + 1)] = index(j, i);
                         }
                     }
@@ -111,16 +112,6 @@ public class SeamCarver {
             }
 
         }
-
-//        // find min dist in the last row
-//        int min = Integer.MAX_VALUE;
-//        int index = -1;
-//        for (int j = 0; j < width(); j++) {
-//            if (distTo[j + width() * (height() - 1)] < min) {
-//                index = j + width() * (height() - 1);
-//                min = distTo[j + width() * (height() - 1)];
-//            }
-//        }
 
         // find seam one by one
         for (int j = 0; j < height(); j++) {
