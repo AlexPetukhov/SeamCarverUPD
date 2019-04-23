@@ -669,9 +669,9 @@ public class SeamCarver {
 
 
         long endTime = System.nanoTime();
-        long totalTime = (endTime - startTime) / 1000000000;
+        long totalTime = (endTime - startTime) / 100000000;
         System.out.println();
-        System.out.println("TIME: " + totalTime + " seconds");
+        System.out.println("TIME: " + totalTime/10 + "." + totalTime%10 + " seconds");
 //        System.out.println(picture.width() + "x" + picture.height());
     }
 
