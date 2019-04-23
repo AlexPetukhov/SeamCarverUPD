@@ -190,17 +190,66 @@ public class SeamCarver {
         return seam;
     }
 
-    public void removeHorizontalSeam(int[] seam) {
-        if (height() <= 1) throw new IllegalArgumentException();
-        if (seam == null) throw new NullPointerException();
-        if (seam.length != width()) throw new IllegalArgumentException();
-
-        for (int i = 0; i < seam.length; i++) {
-            if (seam[i] < 0 || seam[i] > height() - 1)
-                throw new IllegalArgumentException();
-            if (i < width() - 1 && Math.pow(seam[i] - seam[i + 1], 2) > 1)
-                throw new IllegalArgumentException();
+    public int[] TESTfindVerticalSeam(int mult) {
+        int n = this.width() * this.height();
+        int[] seam = new int[this.height()];
+        int[] nodeTo = new int[n];
+        int[] distTo = new int[n];
+        for (int i = 0; i < n; i++) {
+            if (i < width())
+                distTo[i] = 0;
+            else
+                distTo[i] = Integer.MAX_VALUE;
         }
+        int index = 0;
+        int min = Integer.MAX_VALUE;
+        for (int i = 0; i < height(); i++) {
+            for (int j = 0; j < width(); j++) {
+                int energ = energy(j, i);
+                int ind2 = index(j, i);
+                int value = distTo[ind2] + energ;
+                for (int k = -1; k <= 1; k++) {
+                    if (!(j + k < 0 || j + k > this.width() - 1 || i + 1 > this.height() - 1)) {
+                        int ind = index(j + k, i + 1);
+                        if (distTo[ind] > value) {
+                            distTo[ind] = value;
+                            nodeTo[ind] = ind2;
+                        }
+                    }
+                }
+                if (i == height() - 1) {
+                    // find min dist in the last row
+                    if (distTo[j + width() * (height() - 1)] < min) {
+                        index = j + width() * (height() - 1);
+                        min = distTo[j + width() * (height() - 1)];
+                    }
+                }
+            }
+
+        }
+
+        // find seam one by one
+        for (int j = 0; j < height(); j++) {
+            int y = height() - j - 1;
+            int x = index - y * width();
+            seam[height() - 1 - j] = x;
+            index = nodeTo[index];
+        }
+
+        return seam;
+    }
+
+    public void removeHorizontalSeam(int[] seam) {
+//        if (height() <= 1) throw new IllegalArgumentException();
+//        if (seam == null) throw new NullPointerException();
+//        if (seam.length != width()) throw new IllegalArgumentException();
+//
+//        for (int i = 0; i < seam.length; i++) {
+//            if (seam[i] < 0 || seam[i] > height() - 1)
+//                throw new IllegalArgumentException();
+//            if (i < width() - 1 && Math.pow(seam[i] - seam[i + 1], 2) > 1)
+//                throw new IllegalArgumentException();
+//        }
 
         int[][] updatedColor = new int[width()][height() - 1];
         for (int i = 0; i < seam.length; i++) {
@@ -363,6 +412,48 @@ public class SeamCarver {
         sc.picture().save(saveFile);
     }
 
+    public static void TESTnormalMode(String path, Picture picture, SeamCarver sc, String picName){ // doing sqrt(times) seams at one time
+        int times = Math.abs(picture.width() - picture.height());
+        int mult = (int)Math.sqrt(times); // number of seams to be removed at one time
+        System.out.println("TEST MODE!");
+        System.out.println("TIMES: " + times + " MULT: " + mult);
+
+        // making picture quadratic
+        if (picture.width() > picture.height()) {
+            // go vertical
+            for (int i = 0; i < times / mult; i++) {
+                if (i % 1 == 0) System.out.println(i);
+                int[][] verticalSeam = sc.TESTfindVerticalSeam(mult);
+                sc.TESTremoveVerticalSeam(verticalSeam);
+            }
+        } else {
+            // go horizontal
+//            for (int i = 0; i < times; i++) {
+//                if (i % 50 == 0) System.out.println(i);
+//                int[] verticalSeam = sc.findHorizontalSeam();
+//                sc.removeHorizontalSeam(verticalSeam);
+//            }
+        }
+
+        // saving picture :
+        System.out.println("Size of the picture after carving: " + sc.colors.length + "x" + sc.colors[0].length);
+
+        Picture p = new Picture(sc.width(), sc.height());
+        for (int i = 0; i < sc.width(); i++) {
+            for (int j = 0; j < sc.height(); j++) {
+                p.setRGB(i, j, sc.getRGB(i, j));
+            }
+        }
+
+        long time = System.nanoTime() / 10000000;
+        String saveFile = path + picName + "_" + time + ".png";
+        System.out.println("Saving picture: " + saveFile);
+        sc.picture().save(saveFile);
+
+
+
+    }
+
     /**
      * Converts a given Image into a BufferedImage
      *
@@ -446,8 +537,8 @@ public class SeamCarver {
     public static void main(String[] args) {
         String path = "_pics/";
 
-        int mode = 1; // 1 - svou picture, 0 - random
-        int crop = 0; //1 - crop, 0 extend
+        int mode = 0; // 1 - svou picture, 0 - random
+        int crop = 1; //1 - crop, 0 extend
         int resize = 1; // 1 - resize, 0 - keep origin size
         String picName = "pic"; // picName input from console
         String picType = "png";
