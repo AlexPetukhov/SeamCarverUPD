@@ -1,6 +1,7 @@
 import com.sun.jdi.IntegerValue;
 import edu.princeton.cs.algs4.Picture;
 import edu.princeton.cs.algs4.StdOut;
+import org.apache.tools.ant.*;
 
 import java.awt.image.BufferedImage;
 import java.io.*;
@@ -34,7 +35,7 @@ public class SeamCarver {
         return finalPix;
     }
 
-    void addVerticalSeam(int num) {
+    private void addVerticalSeam(int num) {
         int[][] updatedColor = new int[width() + num][height()];
         int seam[];
         int leftpix; //left pixel to be inserted
@@ -90,7 +91,7 @@ public class SeamCarver {
         colors = updatedColor;
     }
 
-    public Picture picture() {
+    private Picture picture() {
         Picture picture = new Picture(colors.length, colors[0].length);
         for (int i = 0; i < colors.length; i++) {
             for (int j = 0; j < colors[0].length; j++) {
@@ -101,7 +102,7 @@ public class SeamCarver {
         return picture;
     }
 
-    public int getRGB(int x, int y) {
+    private int getRGB(int x, int y) {
         return colors[x][y];
     }
 
@@ -113,7 +114,7 @@ public class SeamCarver {
         return this.colors[0].length;
     }
 
-    public int energy(int x, int y) {
+    private int energy(int x, int y) {
 //        if (x < 0 || x > this.width() - 1 || y < 0 || y > this.height() - 1) {
 //            throw new IndexOutOfBoundsException();
 //        }
@@ -135,7 +136,7 @@ public class SeamCarver {
         }
     }
 
-    public void  calcEnergy(){
+    private void  calcEnergy(){
 //        System.out.println(this.Energy.length + " _ " + this.Energy[0].length);
 //        System.out.println(this.colors.length + " _ " + this.height());
         for(int i = 0; i < this.width(); i++){
@@ -145,14 +146,14 @@ public class SeamCarver {
         }
     }
 
-    public int[] findHorizontalSeam() {
+    private int[] findHorizontalSeam() {
         this.colors = transpose(this.colors);
         int[] seam = findVerticalSeam();
         this.colors = transpose(this.colors);
         return seam;
     }
 
-    public int[] findVerticalSeam() {
+    private int[] findVerticalSeam() {
         int n = this.width() * this.height();
         int[] seam = new int[this.height()];
         int[] nodeTo = new int[n];
@@ -201,7 +202,7 @@ public class SeamCarver {
         return seam;
     }
 
-    public int[][] TESTfindHorizontalSeam(int mult){
+    private int[][] TESTfindHorizontalSeam(int mult){
         this.colors = transpose(this.colors);
         this.Energy = transpose(this.Energy);
         int[][] seam = TESTfindVerticalSeam(mult);
@@ -210,7 +211,7 @@ public class SeamCarver {
         return seam;
     }
 
-    public int[][] TESTfindVerticalSeam(int mult) {
+    private int[][] TESTfindVerticalSeam(int mult) {
         int n = this.width() * this.height();
         int[][] seam = new int[this.height()][mult];
         calcEnergy();
@@ -271,7 +272,7 @@ public class SeamCarver {
         return seam;
     }
 
-    public void removeHorizontalSeam(int[] seam) {
+    private void removeHorizontalSeam(int[] seam) {
 //        if (height() <= 1) throw new IllegalArgumentException();
 //        if (seam == null) throw new NullPointerException();
 //        if (seam.length != width()) throw new IllegalArgumentException();
@@ -297,13 +298,12 @@ public class SeamCarver {
         this.colors = updatedColor;
     }
 
-    public void TESTremoveHorizontalSeam(int[][] seam, int mult) {
+    private void TESTremoveHorizontalSeam(int[][] seam, int mult) {
         int [][] updColor = new int[width()][height() - mult];
         // seam[width][mult]
 //        System.out.println(seam.length);
         for(int i = 0; i < seam.length; i++){ // seam.length cycle (i < seam.length)
             // height cycle
-            // seam[i] = int[mult]
             int [] col = new int[mult];
             col = seam[i];
             Arrays.sort(col);
@@ -324,7 +324,7 @@ public class SeamCarver {
         this.colors = updColor;
     }
 
-    public void removeVerticalSeam(int[] seam) {
+    private void removeVerticalSeam(int[] seam) {
         this.colors = transpose(this.colors);
         removeHorizontalSeam(seam);
         this.colors = transpose(this.colors);
@@ -364,7 +364,7 @@ public class SeamCarver {
         return result;
     }
 
-    public static String createDir(String path, String dirName, int... mode) {
+    private static String createDir(String path, String dirName, int... mode) {
         String dirPath;
         if (mode.length > 0) {
             // need to create OUTPUT directory
@@ -405,7 +405,7 @@ public class SeamCarver {
         return dirPath;
     }
 
-    public static void ROFLmode(String path, Picture picture, SeamCarver sc, long startTime, String... pName) {
+    private static void ROFLmode(String path, Picture picture, SeamCarver sc, long startTime, String... pName) {
         // ROFL mode :
         String picName;
         if (pName.length == 0) picName = "A" + System.nanoTime() / 10000000;
@@ -475,30 +475,32 @@ public class SeamCarver {
         sc.picture().save(saveFile);
     }
 
-    public static void TESTnormalMode(String path, Picture picture, SeamCarver sc, String picName){ // doing sqrt(times) seams at one time
+    private static void TESTnormalMode(String path, Picture picture, SeamCarver sc, String picName){ // doing sqrt(times) seams at one time
         int times = Math.abs(picture.width() - picture.height());
         int mult = (int)Math.sqrt(times); // number of seams to be removed at one time
-//        mult = 50;
         System.out.println("Full times: " + times);
         times = times / mult;
         System.out.println("TEST MODE!");
-        System.out.println("Actuall times: " + times + " MULT: " + mult);
+        System.out.println("Actuall times: " + times + ", MULT: " + mult);
+
+        int turned = 0;
 
         // making picture quadratic
-        if (picture.width() > picture.height()) {
-            // go vertical
-            for (int i = 0; i < times / mult; i++) {
-                if (i % 5 == 0) System.out.println(i);
-                int[][] seam = sc.TESTfindVerticalSeam(mult);
-                sc.TESTremoveVerticalSeam(seam, mult);
-            }
-        } else {
-            // go horizontal
-            for (int i = 0; i < times; i++) {
-                if (i % 5 == 0) System.out.println(i);
-                int[][] seam = sc.TESTfindHorizontalSeam(mult);
-                sc.TESTremoveHorizontalSeam(seam, mult);
-            }
+        if (picture.width() > picture.height()) { // if picture is horizontal then transposing picture
+            turned = 1;
+            sc.colors = sc.transpose(sc.colors);
+            sc.Energy = sc.transpose(sc.Energy);
+        }
+
+        for (int i = 0; i < times; i++) {
+            if (i % 10 == 0) System.out.println(i);
+            int[][] seam = sc.TESTfindHorizontalSeam(mult);
+            sc.TESTremoveHorizontalSeam(seam, mult);
+        }
+
+        if(turned == 1){
+            sc.colors = sc.transpose(sc.colors);
+            sc.Energy = sc.transpose(sc.Energy);
         }
 
         // saving picture :
@@ -523,7 +525,7 @@ public class SeamCarver {
      * @param img The Image to be converted
      * @return The converted BufferedImage
      */
-    public static BufferedImage toBufferedImage(Image img) {
+    private static BufferedImage toBufferedImage(Image img) {
         if (img instanceof BufferedImage) {
             return (BufferedImage) img;
         }
@@ -540,7 +542,7 @@ public class SeamCarver {
         return bimage;
     }
 
-    public static Picture resizeImage(Picture picture, String path, float... wid) {
+    private static Picture resizeImage(Picture picture, String path, float... wid) {
         System.out.println("Staring to resize image");
         String picName = "pic";
         long time = System.nanoTime() / 10000000;
@@ -587,7 +589,7 @@ public class SeamCarver {
         return picture;
     }
 
-    public static Picture getPicture(int mode, String path, String picName, String type) {
+    private static Picture getPicture(int mode, String path, String picName, String type) {
         Picture picture;
         if (mode > 0) {
             picture = new Picture(path + picName + "." + type);
@@ -597,27 +599,101 @@ public class SeamCarver {
         return picture;
     }
 
+    private static String[] getPicInfo(String path){
+        String ans[] = new String[2];
+        String picName = "pic";
+        String picType = "png";
+        Scanner in = new Scanner(System.in);
+        int found = 0;
+        do{
+            System.out.println("Enter picture name:");
+            picName = in.nextLine();
+
+            DirectoryScanner scanner = new DirectoryScanner();
+            scanner.setIncludes(new String[]{picName + "*"});
+            scanner.setBasedir(path);
+            scanner.setCaseSensitive(false);
+            scanner.scan();
+            String[] files = scanner.getIncludedFiles();
+            int len = files.length;
+
+            if(len == 0){
+                System.out.println("File with this name not found. Try again!");
+            }else if(len == 1){
+                System.out.println("Found 1 file: " + files[0]);
+                System.out.println("Using this file");
+                String suffix = files[0].substring(files[0].lastIndexOf('.') + 1);
+                String prefix = files[0].substring(0, files[0].lastIndexOf('.'));
+                picName = prefix;
+                picType = suffix;
+                found = 1;
+            }else {
+                System.out.println("Found " + len + " files with this name: ");
+                for (String x : files) {
+                    System.out.println(x);
+                }
+                System.out.println("Enter picture name again:");
+                picName = in.nextLine();
+                DirectoryScanner scanner1 = new DirectoryScanner();
+                scanner1.setIncludes(new String[]{picName + "." + picType});
+                scanner1.setBasedir(path);
+                scanner1.setCaseSensitive(false);
+                scanner1.scan();
+                String[] files1 = scanner1.getIncludedFiles();
+                int len1 = files1.length;
+                if(len1 == 1){
+                    System.out.println("Found 1 file: " + files1[0]);
+                    System.out.println("Using this file");
+                    String suffix = files[0].substring(files[0].lastIndexOf('.') + 1);
+                    String prefix = files[0].substring(0, files[0].lastIndexOf('.'));
+                    picName = prefix;
+                    picType = suffix;
+                    found = 1;
+                }else {
+                    System.out.println("Enter picture type(png, jpg)");
+                    picType = in.nextLine();
+                    DirectoryScanner scanner2 = new DirectoryScanner();
+                    scanner2.setIncludes(new String[]{picName + "." + picType});
+                    scanner2.setBasedir(path);
+                    scanner2.setCaseSensitive(false);
+                    scanner2.scan();
+                    String[] files2 = scanner2.getIncludedFiles();
+                    int len2 = files2.length;
+                    if(len2 == 1){
+                        System.out.println("Found 1 file: " + files2[0]);
+                        System.out.println("Using this file");
+                        String suffix = files[0].substring(files[0].lastIndexOf('.') + 1);
+                        String prefix = files[0].substring(0, files[0].lastIndexOf('.'));
+                        picName = prefix;
+                        picType = suffix;
+                        found = 1;
+                    }else {
+                        System.out.println("File with this name not found. Try again!");
+                    }
+                }
+            }
+        }while(found == 0);
+        ans[0] = picName;
+        ans[1] = picType;
+        return ans;
+    }
+
     public static void main(String[] args) {
         String path = "_pics/";
 
         int mode = 1; // 1 - svou picture, 0 - random
         int crop = 1; //1 - crop, 0 extend
-        int resize = 1; // 1 - resize, 0 - keep origin size
-        int TESTmode = 1; // 1 - TESTmode, 0 - not testing
-        String picName = "pic"; // picName input from console
+        int allowResize = 0; // 1 - resize, 0 - keep origin size
+        int TESTmode = 1; // 1 - TESTmode, 0 - not testing // TESTmode is good now
+        String picName = "pic";
         String picType = "png";
 
 
-
-//        if (mode == 1) {
-//            Scanner in = new Scanner(System.in);
-//            System.out.println("Enter picture name:");
-//            picName = in.nextLine();
-//            System.out.println("Enter picture type(png, jpg):");
-//            picType = in.nextLine();
-//        }
-        picName = "_emillow";
-        picType = "png";
+        if (mode == 1) { // nice directory scanner - file finder
+            String picInfo[] = getPicInfo(path);
+            picName = picInfo[0];
+            picType = picInfo[1];
+        }
 
         Picture picture = getPicture(mode, path, picName, picType);
 
@@ -626,14 +702,13 @@ public class SeamCarver {
 
 
         System.out.println(picture.width() + "x" + picture.height());
-//        if (resize == 1  { // need to resize if picture.width() > newWidth
-        if(picture.width() > 700){
+        if(allowResize == 1 && picture.width() > 700){
             picture = resizeImage(picture, path);
             System.out.println(picture.width() + "x" + picture.height());
             System.out.println("Resize time : " + (System.nanoTime() - startTime) / 1000000000 + " seconds");
         }
 
-        createDir(path, picName, 1); // creating OUTPUT directory if needed
+        if(mode == 0)createDir(path, picName, 1); // creating OUTPUT directory if needed
         SeamCarver sc = new SeamCarver(picture);
 
 
@@ -663,16 +738,13 @@ public class SeamCarver {
                 ptmp.save(dirPath + "/" + name + ".png");
             }
         }else{
-            TESTnormalMode(path, picture, sc, picName);
-//            normalMode(path, picture, sc, picName);
+            TESTnormalMode(path, picture, sc, picName); // finish (as I think)
         }
-
 
         long endTime = System.nanoTime();
         long totalTime = (endTime - startTime) / 100000000;
         System.out.println();
         System.out.println("TIME: " + totalTime/10 + "." + totalTime%10 + " seconds");
-//        System.out.println(picture.width() + "x" + picture.height());
     }
 
 }
