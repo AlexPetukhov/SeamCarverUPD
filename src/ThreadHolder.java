@@ -18,8 +18,7 @@ public class ThreadHolder {
 
     public ThreadHolder() {
         cores = Runtime.getRuntime().availableProcessors();
-        cores = 3;
-        System.out.println("CORES: " + cores);
+//        System.out.println("CORES: " + cores);
         execEnergy = Executors.newFixedThreadPool(cores);
         execMin = Executors.newFixedThreadPool(cores);
         tasks = new TaskEnergy[cores];
@@ -53,6 +52,7 @@ public class ThreadHolder {
 
 
     void calculateEnergy(int[][] _colors, int[][] _energy) {
+        cores = Runtime.getRuntime().availableProcessors();
         colors = _colors;
         energy = _energy;
         countDownLatch = new CountDownLatch(cores);
@@ -68,6 +68,7 @@ public class ThreadHolder {
     }
 
     void calculateCostTable(int[][] colors, int[][] energy, int[] distTO, int[] nodeTO) {
+        cores = Math.min(cores,3);
         this.colors = colors;
         this.energy = energy;
         this.distTo = distTO;

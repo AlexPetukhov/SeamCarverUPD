@@ -30,14 +30,14 @@ public class SeamCarver {
     }
 
     public void testParallelEnergy() {
-        int times = 5000;
+        int times = 10000;
         System.out.println("Testing energy calculation " + times + " times...");
         long normalStart;
         long normalEnd;
         normalStart = System.nanoTime();
-        for (int i = 0; i < times; i++) {
-            calcEnergy();
-        }
+//        for (int i = 0; i < times; i++) {
+//            calcEnergy();
+//        }
         normalEnd = System.nanoTime();
         long normal = (normalEnd - normalStart) / 1000000000;
         long parallelStart;
@@ -54,7 +54,7 @@ public class SeamCarver {
     }
 
     public void testParallelMinCostTable() {
-        int times = 1000;
+        int times = 2000;
         System.out.println("Testing mincost calculation " + times + " times...");
         th.calculateEnergy(this.colors, this.Energy);
         long normalStart;
@@ -338,6 +338,7 @@ public class SeamCarver {
 
             }
             th.calculateCostTable(this.colors, this.Energy, distTo, nodeTo);
+
 //            for(int j = height() - 2; j >= 0;j--){
 //                for(int i = 0; i < width();i++){
 //                    if(Energy[i][j] == -1) continue;
@@ -792,7 +793,7 @@ public class SeamCarver {
         int crop = 1; //1 - crop, 0 extend
         int allowResize = 0; // 1 - resize, 0 - keep origin size
         int TESTmode = 1; // 1 - TESTmode, 0 - not testing // TESTmode is good now
-        int TESTINGPARALLEL = 1; // 1 - testing parallels calculation mode, 0 - common mode
+        int TESTINGPARALLEL = 0; // 1 - testing parallels calculation mode, 0 - common mode
         String picName = "pic";
         String picType = "png";
 
@@ -823,8 +824,8 @@ public class SeamCarver {
         // normal mode : // finished
 //        normalMode(path, picture,sc, picName);
         if (TESTINGPARALLEL == 1) {
-//            sc.testParallelEnergy();
-            sc.testParallelMinCostTable();
+            sc.testParallelEnergy();
+//            sc.testParallelMinCostTable();
             return;
         }
 
