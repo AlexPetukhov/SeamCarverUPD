@@ -137,8 +137,6 @@ public class SeamCarver {
     }
 
     private void  calcEnergy(){
-//        System.out.println(this.Energy.length + " _ " + this.Energy[0].length);
-//        System.out.println(this.colors.length + " _ " + this.height());
         for(int i = 0; i < this.width(); i++){
             for(int j = 0; j < this.height(); j++){
                 this.Energy[i][j] = energy(i,j);
