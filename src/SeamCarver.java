@@ -228,7 +228,6 @@ public class SeamCarver {
                 distTo[ind] = Energy[i][height() - 1];
 
             }
-            int f = 0;
             for(int j = height() - 2; j >= 0;j--){
                 for(int i = 0; i < width();i++){
                     if(Energy[i][j] == -1) continue;
@@ -299,7 +298,6 @@ public class SeamCarver {
     private void TESTremoveHorizontalSeam(int[][] seam, int mult) {
         int [][] updColor = new int[width()][height() - mult];
         // seam[width][mult]
-//        System.out.println(seam.length);
         for(int i = 0; i < seam.length; i++){ // seam.length cycle (i < seam.length)
             // height cycle
             int [] col = new int[mult];
@@ -414,7 +412,7 @@ public class SeamCarver {
         int times = Math.min(picture.height(), picture.width()) - 100;
         System.out.println("TIMES: " + times);
         Picture ptmp;
-        for (int i = 0; i < times; i++) {
+        for (int i = 0; i <times; i++) {
             if (i % 50 == 0) System.out.println(i);
 
             int[] seam = sc.findVerticalSeam();
@@ -682,7 +680,7 @@ public class SeamCarver {
         int mode = 1; // 1 - svou picture, 0 - random
         int crop = 1; //1 - crop, 0 extend
         int allowResize = 0; // 1 - resize, 0 - keep origin size
-        int TESTmode = 1; // 1 - TESTmode, 0 - not testing // TESTmode is good now
+        int TESTmode = 0; // 1 - TESTmode, 0 - not testing // TESTmode is good now
         String picName = "pic";
         String picType = "png";
 
