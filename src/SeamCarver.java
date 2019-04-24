@@ -7,10 +7,13 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.awt.*;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import javax.imageio.ImageIO;
 
 
 public class SeamCarver {
+    private static ThreadHolder th;
     private int[][] colors;
     private int[][] Energy;
 
@@ -23,6 +26,7 @@ public class SeamCarver {
                 colors[i][j] = picture.get(i, j).getRGB();
             }
         }
+        th = new ThreadHolder();
     }
 
     private int getAvgRGB(int pix1, int pix2) {
@@ -212,7 +216,8 @@ public class SeamCarver {
     private int[][] TESTfindVerticalSeam(int mult) {
         int n = this.width() * this.height();
         int[][] seam = new int[this.height()][mult];
-        calcEnergy();
+        //calcEnergy();
+        th.calculate(this.colors,this.Energy);
         // ENERGY(pixel) == -1 <=> pixel is blocked!!!
         for(int curSeam = 0; curSeam < mult; curSeam++) {
             int[] nodeTo = new int[n];
@@ -513,6 +518,7 @@ public class SeamCarver {
         String saveFile = path + picName + "_" + time + ".png";
         System.out.println("Saving picture: " + saveFile);
         sc.picture().save(saveFile);
+        th.shutDown();
     }
 
     /**
@@ -680,7 +686,7 @@ public class SeamCarver {
         int mode = 1; // 1 - svou picture, 0 - random
         int crop = 1; //1 - crop, 0 extend
         int allowResize = 0; // 1 - resize, 0 - keep origin size
-        int TESTmode = 0; // 1 - TESTmode, 0 - not testing // TESTmode is good now
+        int TESTmode = 1; // 1 - TESTmode, 0 - not testing // TESTmode is good now
         String picName = "pic";
         String picType = "png";
 

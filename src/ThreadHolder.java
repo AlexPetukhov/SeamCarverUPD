@@ -1,3 +1,7 @@
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import static java.lang.Thread.sleep;
 
 public class ThreadHolder {
@@ -5,44 +9,41 @@ public class ThreadHolder {
     int cores;
     int[][] colors;
     int[][] energy;
+    ExecutorService exec;
+    private CountDownLatch countDownLatch;
     public ThreadHolder(){
         cores = Runtime.getRuntime().availableProcessors();
+        exec = Executors.newFixedThreadPool(cores);
         tasks = new Task[cores];
-        for(int i=0; i < cores; i++)
-            tasks[i] = new Task();
     }
 
     private void setTasks(){
-        int height = colors[0].length;
-        int section = height / cores;
+        int section = colors.length / cores;
 
         for(int i=0; i < cores; i++)
-            tasks[i] = new Task();
+            tasks[i] = new Task(countDownLatch,colors, energy);
+
         for(int i=0; i < cores; i++)
         {
             tasks[i].setLowerBound(i*section);
-            tasks[i].setUpperBound(i*section+section);
+            tasks[i].setUpperBound((i+1)*section);
         }
-        tasks[cores-1].setUpperBound(height);
+        tasks[cores-1].setUpperBound(colors.length);
     }
     void calculate(int[][] _colors, int[][] _energy){
         colors = _colors;
         energy = _energy;
+        countDownLatch = new CountDownLatch(cores);
         setTasks();
+
         for(int i=0; i < cores; i++) {
-            tasks[i].start(_colors, _energy);
+            exec.execute(tasks[i]);
         }
-        boolean status = true;
-        while(true){
-            status = true;
-            for(int i=0; i < cores; i++)
-                if(tasks[i].isJobDone == false)
-                    status = false;
-            if(status == true)
-                break;
-            try{sleep(10);}
-            catch(InterruptedException e){}
-        }
+        try{countDownLatch.await();
+        }catch (InterruptedException e){}
+    }
+    void shutDown(){
+        exec.shutdown();
     }
 
 }

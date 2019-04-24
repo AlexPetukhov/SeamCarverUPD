@@ -1,10 +1,20 @@
+import java.util.concurrent.CountDownLatch;
+
 public class Task implements Runnable{
     private Thread t;
     private int upperBound;
     private int lowerBound;
     int[][] colors;
     int[][] energy;
-    boolean isJobDone = false;
+    private CountDownLatch countDownLatch;
+    Task(CountDownLatch cdl, int[][] colors, int [][] energy){
+        countDownLatch = cdl;
+        this.colors = colors;
+        this.energy = energy;
+    }
+    public void setCountDownLatch(CountDownLatch cdl){
+        countDownLatch = cdl;
+    }
 
     public void setUpperBound(int _upperBound){
         upperBound = _upperBound;
@@ -12,16 +22,16 @@ public class Task implements Runnable{
     public void setLowerBound(int _lowerBound){
         lowerBound = _lowerBound;
     }
+
     public void run(){
-        for(int i=lowerBound; i < upperBound; i++)
-            for(int j=0; j< width(); j++)
-                energy[i][j] = energyCalc(j,i); //energy[1][0]
-        isJobDone = true;
+        for(int i = lowerBound; i < upperBound; i++){
+            for(int j = 0; j < this.height(); j++){
+                this.energy[i][j] = energyCalc(i,j);
+            }
+        }
+        countDownLatch.countDown();
     }
     public int energyCalc(int x, int y) {
-        if (x < 0 || x > this.width() - 1 || y < 0 || y > this.height() - 1) {
-            throw new IndexOutOfBoundsException();
-        }
         if (x == 0 || x == this.width() - 1 || y == 0 || y == this.height() - 1) {
             return 1000000;
         } else {
@@ -61,10 +71,6 @@ public class Task implements Runnable{
             t.start ();
         }
     }
-    public int getRGB(int x, int y) {
-        return colors[x][y];
-    }
-
     public int width() {
         return this.colors.length;
     }
