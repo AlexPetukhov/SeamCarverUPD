@@ -18,6 +18,8 @@ public class ThreadHolder {
 
     public ThreadHolder() {
         cores = Runtime.getRuntime().availableProcessors();
+        cores = 3;
+        System.out.println("CORES: " + cores);
         execEnergy = Executors.newFixedThreadPool(cores);
         execMin = Executors.newFixedThreadPool(cores);
         tasks = new TaskEnergy[cores];

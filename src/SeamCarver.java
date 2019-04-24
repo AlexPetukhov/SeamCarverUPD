@@ -30,7 +30,7 @@ public class SeamCarver {
     }
 
     public void testParallelEnergy() {
-        int times = 2500;
+        int times = 5000;
         System.out.println("Testing energy calculation " + times + " times...");
         long normalStart;
         long normalEnd;
@@ -65,18 +65,19 @@ public class SeamCarver {
 
         normalStart = System.nanoTime();
         {
-            int n = this.width() * this.height();
-            int[] nodeTo = new int[n];
-            int[] distTo = new int[n];
 
-            for (int i = 0; i < n; i++) distTo[i] = Integer.MAX_VALUE;
-
-            for (int i = 0; i < width(); i++) { // top row distTO = Energy
-                int ind = index(i, height() - 1);
-                distTo[ind] = Energy[i][height() - 1];
-
-            }
             for (int l = 0; l < times; l++) {
+                int n = this.width() * this.height();
+                int[] nodeTo = new int[n];
+                int[] distTo = new int[n];
+
+                for (int i = 0; i < n; i++) distTo[i] = Integer.MAX_VALUE;
+
+                for (int i = 0; i < width(); i++) { // top row distTO = Energy
+                    int ind = index(i, height() - 1);
+                    distTo[ind] = Energy[i][height() - 1];
+
+                }
                 for (int j = height() - 2; j >= 0; j--) {
                     for (int i = 0; i < width(); i++) {
                         if (Energy[i][j] == -1) continue;
@@ -103,19 +104,22 @@ public class SeamCarver {
 
         parallelStart = System.nanoTime();
         {
-            int n = this.width() * this.height();
-            int[] nodeTo = new int[n];
-            int[] distTo = new int[n];
+            for (int l = 0; l < times; l++) {
 
-            for (int i = 0; i < n; i++) distTo[i] = Integer.MAX_VALUE;
+                int n = this.width() * this.height();
+                int[] nodeTo = new int[n];
+                int[] distTo = new int[n];
 
-            for (int i = 0; i < width(); i++) { // top row distTO = Energy
-                int ind = index(i, height() - 1);
-                distTo[ind] = Energy[i][height() - 1];
+                for (int i = 0; i < n; i++) distTo[i] = Integer.MAX_VALUE;
+
+                for (int i = 0; i < width(); i++) { // top row distTO = Energy
+                    int ind = index(i, height() - 1);
+                    distTo[ind] = Energy[i][height() - 1];
+
+                }
+                th.calculateCostTable(colors, Energy, distTo, nodeTo);
 
             }
-            for (int i = 0; i < times; i++)
-                th.calculateCostTable(colors, Energy, distTo, nodeTo);
 
 
         }
@@ -819,7 +823,7 @@ public class SeamCarver {
         // normal mode : // finished
 //        normalMode(path, picture,sc, picName);
         if (TESTINGPARALLEL == 1) {
-            sc.testParallelEnergy();
+//            sc.testParallelEnergy();
             sc.testParallelMinCostTable();
             return;
         }
