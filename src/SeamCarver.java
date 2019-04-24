@@ -415,7 +415,7 @@ public class SeamCarver {
         int times = Math.min(picture.height(), picture.width()) - 100;
         System.out.println("TIMES: " + times);
         Picture ptmp;
-        for (int i = 0; i <100; i++) {
+        for (int i = 0; i <times; i++) {
             if (i % 50 == 0) System.out.println(i);
 
             int[] seam = sc.findVerticalSeam();
