@@ -29,6 +29,106 @@ public class SeamCarver {
         th = new ThreadHolder();
     }
 
+    public void testParallelEnergy() {
+        int times = 2500;
+        System.out.println("Testing energy calculation " + times + " times...");
+        long normalStart;
+        long normalEnd;
+        normalStart = System.nanoTime();
+        for (int i = 0; i < times; i++) {
+            calcEnergy();
+        }
+        normalEnd = System.nanoTime();
+        long normal = (normalEnd - normalStart) / 1000000000;
+        long parallelStart;
+        long parallelEnd;
+        System.out.println("Normal done, starting parallel...");
+        parallelStart = System.nanoTime();
+        for (int i = 0; i < times; i++) {
+            th.calculateEnergy(this.colors, this.Energy);
+        }
+        parallelEnd = System.nanoTime();
+        long parallel = (parallelEnd - parallelStart) / 1000000000;
+        System.out.println("Normal time: " + normal + " sec");
+        System.out.println("Parallel time: " + parallel + " sec");
+    }
+
+    public void testParallelMinCostTable() {
+        int times = 1000;
+        System.out.println("Testing mincost calculation " + times + " times...");
+        th.calculateEnergy(this.colors, this.Energy);
+        long normalStart;
+        long normalEnd;
+        long parallelStart;
+        long parallelEnd;
+
+
+        normalStart = System.nanoTime();
+        {
+            int n = this.width() * this.height();
+            int[] nodeTo = new int[n];
+            int[] distTo = new int[n];
+
+            for (int i = 0; i < n; i++) distTo[i] = Integer.MAX_VALUE;
+
+            for (int i = 0; i < width(); i++) { // top row distTO = Energy
+                int ind = index(i, height() - 1);
+                distTo[ind] = Energy[i][height() - 1];
+
+            }
+            for (int l = 0; l < times; l++) {
+                for (int j = height() - 2; j >= 0; j--) {
+                    for (int i = 0; i < width(); i++) {
+                        if (Energy[i][j] == -1) continue;
+                        int ind = index(i, j);
+                        for (int k = -1; k <= 1; k++) {
+                            // [i + k][j - 1]
+                            if (i + k >= 0 && i + k < width() && j + 1 < height() && Energy[i + k][j + 1] != -1) {
+                                int indTO = index(i + k, j + 1);
+                                if (distTo[indTO] == Integer.MAX_VALUE) continue;
+                                if (distTo[indTO] + Energy[i][j] < distTo[ind]) {
+                                    distTo[ind] = distTo[indTO] + Energy[i][j];
+                                    nodeTo[ind] = indTO;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        normalEnd = System.nanoTime();
+        System.out.println("Normal done, starting parallel...");
+        th.calculateEnergy(this.colors, this.Energy);
+
+
+        parallelStart = System.nanoTime();
+        {
+            int n = this.width() * this.height();
+            int[] nodeTo = new int[n];
+            int[] distTo = new int[n];
+
+            for (int i = 0; i < n; i++) distTo[i] = Integer.MAX_VALUE;
+
+            for (int i = 0; i < width(); i++) { // top row distTO = Energy
+                int ind = index(i, height() - 1);
+                distTo[ind] = Energy[i][height() - 1];
+
+            }
+            for (int i = 0; i < times; i++)
+                th.calculateCostTable(colors, Energy, distTo, nodeTo);
+
+
+        }
+        parallelEnd = System.nanoTime();
+
+        long normal = (normalEnd - normalStart) / 1000000000;
+        long parallel = (parallelEnd - parallelStart) / 1000000000;
+        System.out.println("Normal time: " + normal + " sec");
+        System.out.println("Parallel time: " + parallel + " sec");
+        th.shutDown();
+    }
+
+
     private int getAvgRGB(int pix1, int pix2) {
         int red = (red(pix1) + (red(pix2))) / 2;
         red = red << 16;
@@ -140,10 +240,10 @@ public class SeamCarver {
         }
     }
 
-    private void  calcEnergy(){
-        for(int i = 0; i < this.width(); i++){
-            for(int j = 0; j < this.height(); j++){
-                this.Energy[i][j] = energy(i,j);
+    private void calcEnergy() {
+        for (int i = 0; i < this.width(); i++) {
+            for (int j = 0; j < this.height(); j++) {
+                this.Energy[i][j] = energy(i, j);
             }
         }
     }
@@ -204,7 +304,7 @@ public class SeamCarver {
         return seam;
     }
 
-    private int[][] TESTfindHorizontalSeam(int mult){
+    private int[][] TESTfindHorizontalSeam(int mult) {
         this.colors = transpose(this.colors);
         this.Energy = transpose(this.Energy);
         int[][] seam = TESTfindVerticalSeam(mult);
@@ -216,10 +316,10 @@ public class SeamCarver {
     private int[][] TESTfindVerticalSeam(int mult) {
         int n = this.width() * this.height();
         int[][] seam = new int[this.height()][mult];
-        //calcEnergy();
-        th.calculate(this.colors,this.Energy);
+//        calcEnergy();
+        th.calculateEnergy(this.colors, this.Energy);
         // ENERGY(pixel) == -1 <=> pixel is blocked!!!
-        for(int curSeam = 0; curSeam < mult; curSeam++) {
+        for (int curSeam = 0; curSeam < mult; curSeam++) {
             int[] nodeTo = new int[n];
             int[] distTo = new int[n];
 
@@ -228,41 +328,42 @@ public class SeamCarver {
             int index = 0;
             int min = Integer.MAX_VALUE;
 
-            for(int i = 0; i < width();i++){ // top row distTO = Energy
-                int ind = index(i,height() - 1);
+            for (int i = 0; i < width(); i++) { // top row distTO = Energy
+                int ind = index(i, height() - 1);
                 distTo[ind] = Energy[i][height() - 1];
 
             }
-            for(int j = height() - 2; j >= 0;j--){
-                for(int i = 0; i < width();i++){
-                    if(Energy[i][j] == -1) continue;
-                    int ind = index(i, j);
-                    for (int k = -1; k <= 1; k++) {
-                        // [i + k][j - 1]
-                        if(i + k >= 0 && i + k < width() && j + 1 < height() && Energy[i + k][j + 1] != -1){
-                            int indTO = index(i + k, j + 1);
-                            if(distTo[indTO] == Integer.MAX_VALUE) continue;
-                            if(distTo[indTO] + Energy[i][j] < distTo[ind]){
-                                distTo[ind] = distTo[indTO] + Energy[i][j];
-                                nodeTo[ind] = indTO;
-                            }
-                        }
-                    }
-                }
-            }
+            th.calculateCostTable(this.colors, this.Energy, distTo, nodeTo);
+//            for(int j = height() - 2; j >= 0;j--){
+//                for(int i = 0; i < width();i++){
+//                    if(Energy[i][j] == -1) continue;
+//                    int ind = index(i, j);
+//                    for (int k = -1; k <= 1; k++) {
+//                        // [i + k][j - 1]
+//                        if(i + k >= 0 && i + k < width() && j + 1 < height() && Energy[i + k][j + 1] != -1){
+//                            int indTO = index(i + k, j + 1);
+//                            if(distTo[indTO] == Integer.MAX_VALUE) continue;
+//                            if(distTo[indTO] + Energy[i][j] < distTo[ind]){
+//                                distTo[ind] = distTo[indTO] + Energy[i][j];
+//                                nodeTo[ind] = indTO;
+//                            }
+//                        }
+//                    }
+//                }
+//            }
 
             // find min dist in the bottom row
-            for(int i = 0; i < width();i++){
+            for (int i = 0; i < width(); i++) {
                 // j = 0
-                int ind = index(i,0);
-                if(distTo[ind] < min){
+                int ind = index(i, 0);
+                if (distTo[ind] < min) {
                     min = distTo[ind];
                     index = ind;
                 }
             }
 
             // find seam one by one from bot to top
-            for(int j = 0; j < height(); j++){
+            for (int j = 0; j < height(); j++) {
                 int y = j;
                 int x = index - y * width();
                 seam[y][curSeam] = x;
@@ -301,24 +402,24 @@ public class SeamCarver {
     }
 
     private void TESTremoveHorizontalSeam(int[][] seam, int mult) {
-        int [][] updColor = new int[width()][height() - mult];
+        int[][] updColor = new int[width()][height() - mult];
         // seam[width][mult]
-        for(int i = 0; i < seam.length; i++){ // seam.length cycle (i < seam.length)
+        for (int i = 0; i < seam.length; i++) { // seam.length cycle (i < seam.length)
             // height cycle
-            int [] col = new int[mult];
+            int[] col = new int[mult];
             col = seam[i];
             Arrays.sort(col);
             int last = 0;
             int updLast = 0;
-            for(int j = 0; j < mult; j++){
-                if(col[j] - last > 0){
+            for (int j = 0; j < mult; j++) {
+                if (col[j] - last > 0) {
                     System.arraycopy(this.colors[i], last, updColor[i], updLast, col[j] - last);
                 }
                 updLast += col[j] - last;
                 last = col[j] + 1;
-                if(col[j] == height() - 1)break;
+                if (col[j] == height() - 1) break;
             }
-            if(last < height()){
+            if (last < height()) {
                 System.arraycopy(this.colors[i], last, updColor[i], updLast, height() - last);
             }
         }
@@ -331,9 +432,9 @@ public class SeamCarver {
         this.colors = transpose(this.colors);
     }
 
-    public void TESTremoveVerticalSeam(int[][] seam,int mult) {
+    public void TESTremoveVerticalSeam(int[][] seam, int mult) {
         this.colors = transpose(this.colors);
-        TESTremoveHorizontalSeam(seam,mult);
+        TESTremoveHorizontalSeam(seam, mult);
         this.colors = transpose(this.colors);
     }
 
@@ -417,7 +518,7 @@ public class SeamCarver {
         int times = Math.min(picture.height(), picture.width()) - 100;
         System.out.println("TIMES: " + times);
         Picture ptmp;
-        for (int i = 0; i <times; i++) {
+        for (int i = 0; i < times; i++) {
             if (i % 50 == 0) System.out.println(i);
 
             int[] seam = sc.findVerticalSeam();
@@ -476,9 +577,9 @@ public class SeamCarver {
         sc.picture().save(saveFile);
     }
 
-    private static void TESTnormalMode(String path, Picture picture, SeamCarver sc, String picName){ // doing sqrt(times) seams at one time
+    private static void TESTnormalMode(String path, Picture picture, SeamCarver sc, String picName) { // doing sqrt(times) seams at one time
         int times = Math.abs(picture.width() - picture.height());
-        int mult = (int)Math.sqrt(times); // number of seams to be removed at one time
+        int mult = (int) Math.sqrt(times); // number of seams to be removed at one time
         System.out.println("Full times: " + times);
         times = times / mult;
         System.out.println("TEST MODE!");
@@ -499,7 +600,7 @@ public class SeamCarver {
             sc.TESTremoveHorizontalSeam(seam, mult);
         }
 
-        if(turned == 1){
+        if (turned == 1) {
             sc.colors = sc.transpose(sc.colors);
             sc.Energy = sc.transpose(sc.Energy);
         }
@@ -601,13 +702,13 @@ public class SeamCarver {
         return picture;
     }
 
-    private static String[] getPicInfo(String path){
+    private static String[] getPicInfo(String path) {
         String ans[] = new String[2];
         String picName = "pic";
         String picType = "png";
         Scanner in = new Scanner(System.in);
         int found = 0;
-        do{
+        do {
             System.out.println("Enter picture name:");
             picName = in.nextLine();
 
@@ -619,9 +720,9 @@ public class SeamCarver {
             String[] files = scanner.getIncludedFiles();
             int len = files.length;
 
-            if(len == 0){
+            if (len == 0) {
                 System.out.println("File with this name not found. Try again!");
-            }else if(len == 1){
+            } else if (len == 1) {
                 System.out.println("Found 1 file: " + files[0]);
                 System.out.println("Using this file");
                 String suffix = files[0].substring(files[0].lastIndexOf('.') + 1);
@@ -629,7 +730,7 @@ public class SeamCarver {
                 picName = prefix;
                 picType = suffix;
                 found = 1;
-            }else {
+            } else {
                 System.out.println("Found " + len + " files with this name: ");
                 for (String x : files) {
                     System.out.println(x);
@@ -643,7 +744,7 @@ public class SeamCarver {
                 scanner1.scan();
                 String[] files1 = scanner1.getIncludedFiles();
                 int len1 = files1.length;
-                if(len1 == 1){
+                if (len1 == 1) {
                     System.out.println("Found 1 file: " + files1[0]);
                     System.out.println("Using this file");
                     String suffix = files[0].substring(files[0].lastIndexOf('.') + 1);
@@ -651,7 +752,7 @@ public class SeamCarver {
                     picName = prefix;
                     picType = suffix;
                     found = 1;
-                }else {
+                } else {
                     System.out.println("Enter picture type(png, jpg)");
                     picType = in.nextLine();
                     DirectoryScanner scanner2 = new DirectoryScanner();
@@ -661,7 +762,7 @@ public class SeamCarver {
                     scanner2.scan();
                     String[] files2 = scanner2.getIncludedFiles();
                     int len2 = files2.length;
-                    if(len2 == 1){
+                    if (len2 == 1) {
                         System.out.println("Found 1 file: " + files2[0]);
                         System.out.println("Using this file");
                         String suffix = files[0].substring(files[0].lastIndexOf('.') + 1);
@@ -669,12 +770,12 @@ public class SeamCarver {
                         picName = prefix;
                         picType = suffix;
                         found = 1;
-                    }else {
+                    } else {
                         System.out.println("File with this name not found. Try again!");
                     }
                 }
             }
-        }while(found == 0);
+        } while (found == 0);
         ans[0] = picName;
         ans[1] = picType;
         return ans;
@@ -687,6 +788,7 @@ public class SeamCarver {
         int crop = 1; //1 - crop, 0 extend
         int allowResize = 0; // 1 - resize, 0 - keep origin size
         int TESTmode = 1; // 1 - TESTmode, 0 - not testing // TESTmode is good now
+        int TESTINGPARALLEL = 1; // 1 - testing parallels calculation mode, 0 - common mode
         String picName = "pic";
         String picType = "png";
 
@@ -704,20 +806,25 @@ public class SeamCarver {
 
 
         System.out.println(picture.width() + "x" + picture.height());
-        if(allowResize == 1 && picture.width() > 700){
+        if (allowResize == 1 && picture.width() > 700) {
             picture = resizeImage(picture, path);
             System.out.println(picture.width() + "x" + picture.height());
             System.out.println("Resize time : " + (System.nanoTime() - startTime) / 1000000000 + " seconds");
         }
 
-        if(mode == 0)createDir(path, picName, 1); // creating OUTPUT directory if needed
+        if (mode == 0) createDir(path, picName, 1); // creating OUTPUT directory if needed
         SeamCarver sc = new SeamCarver(picture);
 
 
         // normal mode : // finished
 //        normalMode(path, picture,sc, picName);
+        if (TESTINGPARALLEL == 1) {
+            sc.testParallelEnergy();
+            sc.testParallelMinCostTable();
+            return;
+        }
 
-        if(TESTmode == 0){
+        if (TESTmode == 0) {
             if (crop == 1) {
                 // ROFL MODE :
                 if (mode == 1) {
@@ -739,14 +846,14 @@ public class SeamCarver {
                 }
                 ptmp.save(dirPath + "/" + name + ".png");
             }
-        }else{
+        } else {
             TESTnormalMode(path, picture, sc, picName); // finish (as I think)
         }
 
         long endTime = System.nanoTime();
         long totalTime = (endTime - startTime) / 100000000;
         System.out.println();
-        System.out.println("TIME: " + totalTime/10 + "." + totalTime%10 + " seconds");
+        System.out.println("TIME: " + totalTime / 10 + "." + totalTime % 10 + " seconds");
     }
 
 }

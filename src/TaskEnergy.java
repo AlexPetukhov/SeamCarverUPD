@@ -1,36 +1,40 @@
 import java.util.concurrent.CountDownLatch;
 
-public class Task implements Runnable{
+public class TaskEnergy implements Runnable {
     private Thread t;
     private int upperBound;
     private int lowerBound;
     int[][] colors;
     int[][] energy;
     private CountDownLatch countDownLatch;
-    Task(CountDownLatch cdl, int[][] colors, int [][] energy){
+
+    TaskEnergy(CountDownLatch cdl, int[][] colors, int[][] energy) {
         countDownLatch = cdl;
         this.colors = colors;
         this.energy = energy;
     }
-    public void setCountDownLatch(CountDownLatch cdl){
+
+    public void setCountDownLatch(CountDownLatch cdl) {
         countDownLatch = cdl;
     }
 
-    public void setUpperBound(int _upperBound){
+    public void setUpperBound(int _upperBound) {
         upperBound = _upperBound;
     }
-    public void setLowerBound(int _lowerBound){
+
+    public void setLowerBound(int _lowerBound) {
         lowerBound = _lowerBound;
     }
 
-    public void run(){
-        for(int i = lowerBound; i < upperBound; i++){
-            for(int j = 0; j < this.height(); j++){
-                this.energy[i][j] = energyCalc(i,j);
+    public void run() {
+        for (int i = lowerBound; i < upperBound; i++) {
+            for (int j = 0; j < this.height(); j++) {
+                this.energy[i][j] = energyCalc(i, j);
             }
         }
         countDownLatch.countDown();
     }
+
     public int energyCalc(int x, int y) {
         if (x == 0 || x == this.width() - 1 || y == 0 || y == this.height() - 1) {
             return 1000000;
@@ -63,14 +67,15 @@ public class Task implements Runnable{
         return (rgb >> 0) & 0xFF;
     }
 
-    public void start(int[][] _colors, int[][] _energy){
+    public void start(int[][] _colors, int[][] _energy) {
         colors = _colors;
         energy = _energy;
         if (t == null) {
             t = new Thread(this);
-            t.start ();
+            t.start();
         }
     }
+
     public int width() {
         return this.colors.length;
     }
