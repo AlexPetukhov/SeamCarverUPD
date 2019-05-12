@@ -142,6 +142,54 @@ public class SeamCarver {
         int finalPix = red + green + blue;
         return finalPix;
     }
+	public void TESTaddVerticalSeam(int num) {
+        int seam[][] = TESTfindVerticalSeam(num);
+        int leftpix; //left pixel to be inserted
+        int rightpix; // right one
+        int tmp1, tmp2;
+        int updatedColor[][] = new int[width() + num][height()];
+        for (int i = 0; i < width(); i++)
+            for (int j = 0; j < height(); j++)
+                updatedColor[i][j] = colors[i][j];
+        for (int k = 0; k < num; k++) {
+            for (int i = 0; i < height(); i++) {
+                int x = seam[i][k];
+                if (x == 0) { //find averages for left and right pixels
+                    rightpix = getAvgRGB(updatedColor[x + 1][i], updatedColor[x][i]);
+                    leftpix = updatedColor[x][i];
+                } else if (x == width() - 1) {
+                    leftpix = getAvgRGB(updatedColor[x - 1][i], updatedColor[x][i]);
+                    rightpix = updatedColor[x][i];
+                } else {
+                    leftpix = getAvgRGB(updatedColor[x - 1][i], updatedColor[x][i]);
+                    rightpix = getAvgRGB(updatedColor[x + 1][i], updatedColor[x][i]);
+                }
+                if (x != 0) { // insert pixels
+                    tmp2 = updatedColor[x][i];
+                    updatedColor[x - 1][i] = leftpix;
+                    updatedColor[x][i] = rightpix;
+                    for (int j = x + 1; j < width() + num - 1; j++) {
+                        tmp1 = updatedColor[j][i];
+                        updatedColor[j][i] = tmp2;
+                        tmp2 = tmp1;
+                    }
+                    updatedColor[width() + num - 1][i] = tmp2;
+                } else {
+                    tmp2 = updatedColor[x + 1][i];
+                    updatedColor[x][i] = leftpix;
+                    updatedColor[x + 1][i] = rightpix;
+                    for (int j = x + 2; j < width() + num - 1; j++) { // shift remaining pixels
+                        tmp1 = updatedColor[j][i];
+                        updatedColor[j][i] = tmp2;
+                        tmp2 = tmp1;
+                    }
+                    updatedColor[width() + num - 1][i] = tmp2;
+                }
+
+            }
+        }
+        colors = updatedColor;
+    }
 
     private void addVerticalSeam(int num) {
         int[][] updatedColor = new int[width() + num][height()];
